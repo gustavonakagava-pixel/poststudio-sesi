@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostStudio — Academia do SESI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --preto:#1A1A1A;--cinza:#2A2A2A;--cinza2:#3A3A3A;--branco:#FFFFFF;
+  --vermelho:#D01E28;--vermelho-l:rgba(208,30,40,.12);
+  --texto:#E8E4DF;--texto2:#9A9590;--texto3:#6A6560;
+  --brd:rgba(255,255,255,.08);--brd2:rgba(255,255,255,.15);
+  --r:10px;--rs:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--preto);color:var(--texto);min-height:100vh;font-size:15px;line-height:1.6}
+
+/* CONFIG BANNER */
+.config-bar{background:var(--vermelho);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.config-bar label{font-size:12px;font-weight:500;color:white;white-space:nowrap}
+.config-input{flex:1;min-width:280px;padding:6px 10px;border-radius:var(--rs);border:none;font-size:12px;font-family:'Barlow',sans-serif;background:rgba(0,0,0,.3);color:white}
+.config-input::placeholder{color:rgba(255,255,255,.5)}
+.config-input:focus{outline:2px solid white}
+.config-ok{width:10px;height:10px;border-radius:50%;background:#22C55E;flex-shrink:0}
+.config-err{width:10px;height:10px;border-radius:50%;background:#EF4444;flex-shrink:0}
+.config-status{font-size:11px;color:rgba(255,255,255,.8)}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 44px)}
+.sidebar{background:var(--cinza);border-right:1px solid var(--brd);display:flex;flex-direction:column;position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto}
+
+/* LOGO */
+.logo{padding:18px 16px 14px;border-bottom:1px solid var(--brd)}
+.logo-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;font-style:italic;color:var(--branco);letter-spacing:.02em}
+.logo-name span{color:var(--vermelho)}
+.logo-sub{font-size:10px;color:var(--texto3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+
+/* BRAND */
+.brand-sec{padding:14px 16px;border-bottom:1px solid var(--brd)}
+.slbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:10px}
+.fg{margin-bottom:9px}
+.fl{font-size:11px;color:var(--texto2);margin-bottom:3px;display:block}
+.fi{width:100%;background:var(--preto);border:1px solid var(--brd);border-radius:var(--rs);padding:6px 9px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--texto);outline:none}
+.fi:focus{border-color:var(--vermelho)}
+.fi option{background:var(--cinza)}
+.cr{display:flex;gap:5px;flex-wrap:wrap}
+.cs{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s}
+.cs.on{border-color:var(--branco);transform:scale(1.15)}
+
+/* MONTHS */
+.mths{padding:12px 14px;flex:1}
+.mb{display:block;width:100%;text-align:left;padding:6px 8px;border-radius:var(--rs);border:none;background:none;font-size:12px;color:var(--texto2);cursor:pointer;font-family:'Barlow',sans-serif;transition:background .1s;margin-bottom:1px}
+.mb:hover{background:rgba(255,255,255,.05)}
+.mb.on{background:var(--vermelho-l);color:var(--vermelho);font-weight:500}
+
+/* MAIN */
+.main{display:flex;flex-direction:column}
+.topbar{background:var(--cinza);border-bottom:1px solid var(--brd);padding:11px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:44px;z-index:10}
+.pills{display:flex;align-items:center;gap:5px}
+.pill{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--texto3);padding:4px 10px;border-radius:20px}
+.pill.on{background:var(--vermelho);color:white}
+.pill.done{color:var(--vermelho)}
+.psep{color:var(--brd2);font-size:12px}
+.cnt{padding:20px;flex:1}
+.view{display:none}.view.on{display:block}
+.sec-lbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:12px}
+
+/* POST CARDS */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:16px}
+.pcard{background:var(--cinza);border:1px solid var(--brd);border-radius:var(--r);padding:12px;cursor:pointer;transition:border-color .15s,transform .1s}
+.pcard:hover{border-color:var(--brd2);transform:translateY(-1px)}
+.pcard.on{border-color:var(--vermelho);background:var(--vermelho-l)}
+.ph{display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap}
+.bdg{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
+.b-data{background:rgba(208,30,40,.2);color:#FF6B70}
+.b-edu{background:rgba(37,99,235,.2);color:#7EB3FF}
+.b-motiv{background:rgba(168,85,247,.2);color:#C084FC}
+.b-life{background:rgba(34,197,94,.2);color:#86EFAC}
+.b-com{background:rgba(234,179,8,.2);color:#FDE047}
+.pdate{font-size:10px;color:var(--texto3);margin-left:auto}
+.ptitle{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--branco);line-height:1.3;margin-bottom:3px}
+.pdesc{font-size:11px;color:var(--texto2);line-height:1.4}
+
+/* BANNER */
+.ban{background:var(--cinza);border:1px solid var(--brd);border-left:3px solid var(--vermelho);border-radius:var(--r);padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.bcp{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.btitle{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--branco)}
+.bmeta{font-size:10px;color:var(--texto3);margin-top:1px;display:flex;align-items:center;gap:5px}
+
+/* RESEARCH */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rcard{background:var(--cinza);border:1px solid var(--brd);border-radius:var(--r);padding:14px}
+.rc-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.sdot-g{background:#22C55E}.sdot-a{background:#F59E0B}.sdot-b{background:#3B82F6}
+.tai{display:inline-flex;font-size:9px;font-weight:700;padding:1px 5px;border-radius:20px;background:rgba(208,30,40,.2);color:#FF6B70;text-transform:uppercase;letter-spacing:.04em}
+.trow{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--brd);font-size:12px;gap:8px}
+.trow:last-child{border-bottom:none}
+.tctx{font-size:10px;color:var(--texto3);margin-top:2px;line-height:1.4}
+.htag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase}
+.h-alta{background:rgba(239,68,68,.2);color:#FCA5A5}
+.h-estavel{background:rgba(245,158,11,.2);color:#FCD34D}
+.h-emergente{background:rgba(34,197,94,.2);color:#86EFAC}
+.prow{padding:7px 0;border-bottom:1px solid var(--brd);font-size:12px;color:var(--texto);display:flex;gap:7px;line-height:1.4}
+.prow:last-child{border-bottom:none}
+.pnum{font-size:10px;font-weight:600;color:var(--texto3);flex-shrink:0;margin-top:2px}
+.angles{background:var(--cinza);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.ao{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:var(--rs);cursor:pointer;border:1px solid transparent;margin-bottom:6px;transition:background .1s,border-color .1s}
+.ao:hover{background:rgba(255,255,255,.04)}
+.ao.on{background:var(--vermelho-l);border-color:var(--vermelho)}
+.ao:last-child{margin-bottom:0}
+.ar{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--brd2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
+.ao.on .ar{border-color:var(--vermelho);background:var(--vermelho)}
+.ao.on .ar::after{content:'';width:4px;height:4px;border-radius:50%;background:white}
+.atxt{font-size:12px;color:var(--texto);line-height:1.4}
+.anum{font-size:9px;font-weight:700;color:var(--texto3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+
+/* GENERATE */
+.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gc{background:var(--cinza);border:1px solid var(--brd);border-radius:var(--r);padding:14px}
+.gc.full{grid-column:1/-1}
+.gc-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.prompt-box{font-size:12px;line-height:1.7;color:var(--texto);background:var(--preto);border-radius:var(--rs);padding:12px;border:1px solid var(--brd)}
+.cap-txt{font-size:13px;line-height:1.8;color:var(--texto)}
+.htchip{display:inline-block;font-size:10px;padding:3px 8px;border-radius:20px;background:var(--preto);border:1px solid var(--brd);color:var(--texto2);margin:2px}
+.fmts{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.fmt{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+.fmt-ai{background:rgba(208,30,40,.2);color:#FF6B70}
+.fmt-sz{background:rgba(34,197,94,.2);color:#86EFAC}
+.divl{height:1px;background:var(--brd);margin:12px 0}
+
+/* BUTTONS */
+button{cursor:pointer;font-family:'Barlow',sans-serif;border:1px solid var(--brd2);background:transparent;color:var(--texto);padding:7px 14px;border-radius:var(--rs);font-size:12px;transition:all .15s}
+button:hover{background:rgba(255,255,255,.06)}
+button:disabled{opacity:.3;cursor:default}
+.btn-p{background:var(--vermelho);color:white;border-color:var(--vermelho);font-weight:500}
+.btn-p:hover:not(:disabled){background:#B01820}
+.btn-c{background:#7D2AE8;color:white;border-color:#7D2AE8}
+.btn-c:hover{background:#6920C5}
+.cbtn{font-size:10px;padding:2px 8px;border-radius:20px}
+.arow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+
+/* LOADING */
+.ldg{display:flex;align-items:center;gap:10px;padding:20px;color:var(--texto2);font-size:13px}
+.spin{width:18px;height:18px;border:2px solid var(--brd);border-top-color:var(--vermelho);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{padding:14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--r);font-size:12px;color:#FCA5A5;margin-bottom:10px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--cinza2);border:1px solid var(--brd2);color:var(--texto);font-size:12px;padding:10px 16px;border-radius:var(--rs);opacity:0;transform:translateY(8px);transition:all .2s;z-index:999;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:800px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto}
+  .rgrid,.ggrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- CONFIG BAR -->
+<div class="config-bar">
+  <label>URL do Worker:</label>
+  <input class="config-input" type="text" id="workerUrl"
+    placeholder="https://poststudio.seu-usuario.workers.dev"
+    value="">
+  <span id="configDot" class="config-err"></span>
+  <span id="configStatus" class="config-status">Cole a URL do seu Cloudflare Worker</span>
+</div>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-name">POST<span>STUDIO</span></div>
+    <div class="logo-sub">Academia do SESI</div>
+  </div>
+  <div class="brand-sec">
+    <div class="slbl">Identidade</div>
+    <div class="fg"><label class="fl">Nome da academia</label>
+      <input class="fi" type="text" id="brandName" placeholder="Ex: Academia do SESI - SP" value="Academia do SESI">
+    </div>
+    <div class="fg">
+      <label class="fl">Cor da marca</label>
+      <div class="cr">
+        <div class="cs on" style="background:#D01E28" data-c="#D01E28" onclick="pc(this)"></div>
+        <div class="cs" style="background:#1A1A1A;border:1px solid #555" data-c="#1A1A1A" onclick="pc(this)"></div>
+        <div class="cs" style="background:#2563EB" data-c="#2563EB" onclick="pc(this)"></div>
+        <div class="cs" style="background:#7C3AED" data-c="#7C3AED" onclick="pc(this)"></div>
+        <div class="cs" style="background:#059669" data-c="#059669" onclick="pc(this)"></div>
+        <div class="cs" style="background:#D97706" data-c="#D97706" onclick="pc(this)"></div>
+        <div class="cs" style="background:#DB2777" data-c="#DB2777" onclick="pc(this)"></div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Tom de voz</label>
+      <select class="fi" id="brandTone">
+        <option>Acolhedor e gentil</option>
+        <option>Motivador e energético</option>
+        <option>Educativo e informativo</option>
+        <option>Inspiracional e poético</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Público</label>
+      <select class="fi" id="brandAud">
+        <option>Adultos 30–55 anos</option>
+        <option>Jovens adultos 20–35 anos</option>
+        <option>50+ anos</option>
+        <option>Principalmente mulheres</option>
+        <option>Todos os perfis</option>
+      </select>
+    </div>
+  </div>
+  <div class="mths"><div class="slbl">Meses</div><div id="mthList"></div></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="pills">
+      <span class="pill on" id="p1">1 · Postagem</span><span class="psep">›</span>
+      <span class="pill" id="p2">2 · Trends</span><span class="psep">›</span>
+      <span class="pill" id="p3">3 · Gerar</span>
+    </div>
+    <div id="tba"></div>
+  </div>
+
+  <div class="cnt">
+    <div class="view on" id="v1">
+      <div class="sec-lbl" id="mtitle">Janeiro — selecione uma postagem</div>
+      <div class="pgrid" id="pgrid"></div>
+      <div class="arow"><button class="btn-p" id="btnR" disabled onclick="goR()">Pesquisar trends →</button></div>
+    </div>
+    <div class="view" id="v2"><div class="ban" id="ban2"></div><div id="rArea"></div></div>
+    <div class="view" id="v3"><div class="ban" id="ban3"></div><div class="ggrid" id="gArea"></div></div>
+  </div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── POSTS DATA ──
+const POSTS=[
+  {date:"01/jan",month:"Janeiro",cat:"data",catL:"Data Comemorativa",title:"Começo de ano: um passo de cada vez",desc:"Recomeços sem pressão. Gentileza e consistência.",cap:"Cada passo conta. Cada dia importa."},
+  {date:"10/jan",month:"Janeiro",cat:"edu",catL:"Conteúdo Educativo",title:"Por que começar na academia muda sua saúde além do físico",desc:"Humor, sono, autoestima — além da estética.",cap:"Você não precisa ser atleta para se beneficiar do movimento."},
+  {date:"18/jan",month:"Janeiro",cat:"motiv",catL:"Motivacional",title:"Manter a meta quando o entusiasmo passa",desc:"Mensagem de apoio para a segunda semana do ano.",cap:"O segredo não é perfeição — é aparecer."},
+  {date:"27/jan",month:"Janeiro",cat:"life",catL:"Lifestyle",title:"Água: o hábito mais simples para a sua saúde",desc:"Hidratação no verão e no treino.",cap:"Seu corpo é ~60% água."},
+  {date:"06/fev",month:"Fevereiro",cat:"data",catL:"Data Comemorativa",title:"Movimento é celebração: o seu corpo é para dançar",desc:"Carnaval e prazer do movimento.",cap:"Seu corpo foi feito para se mover e celebrar."},
+  {date:"12/fev",month:"Fevereiro",cat:"edu",catL:"Conteúdo Educativo",title:"Fevereiro Vermelho: seu coração agradece cada treino",desc:"Saúde cardiovascular e exercício.",cap:"30 minutos de movimento por dia fazem diferença."},
+  {date:"14/fev",month:"Fevereiro",cat:"data",catL:"Data Comemorativa",title:"Treinar junto: o melhor programa para dois",desc:"Casais que treinam juntos são mais consistentes.",cap:"Quem treina junto, cuida um do outro."},
+  {date:"24/fev",month:"Fevereiro",cat:"life",catL:"Lifestyle",title:"Descanso não é preguiça — é parte do treino",desc:"Sono e recuperação ativa.",cap:"Seu músculo cresce no descanso."},
+  {date:"08/mar",month:"Março",cat:"data",catL:"Data Comemorativa",title:"Força feminina: cuidar de si é um ato de amor próprio",desc:"Mulheres que escolhem a atividade física como autocuidado.",cap:"Ao corpo que carrega e persiste: obrigada."},
+  {date:"15/mar",month:"Março",cat:"edu",catL:"Conteúdo Educativo",title:"Coluna saudável: como o treino pode te ajudar",desc:"Exercício previne e alivia dores nas costas.",cap:"Seu treino é a melhor terapia para a coluna."},
+  {date:"21/mar",month:"Março",cat:"com",catL:"Comunidade",title:"A estação que convida a criar rotinas que duram",desc:"Outono: consolidar hábitos.",cap:"O outono chega e os hábitos ficam."},
+  {date:"31/mar",month:"Março",cat:"data",catL:"Data Comemorativa",title:"Saúde não é destino — é prática diária",desc:"Bem-estar integral: corpo, mente e comunidade.",cap:"Saúde é o que você constrói hoje."},
+  {date:"07/abr",month:"Abril",cat:"data",catL:"Data Comemorativa",title:"Saúde para todos: o que a OMS quer que você saiba",desc:"Atividade física como direito.",cap:"Saúde é vitalidade, movimento e conexão."},
+  {date:"11/abr",month:"Abril",cat:"edu",catL:"Conteúdo Educativo",title:"Treino e ansiedade: como o exercício acalma a mente",desc:"Atividade física e saúde mental.",cap:"Quando a cabeça está pesada, o corpo pede movimento."},
+  {date:"22/abr",month:"Abril",cat:"life",catL:"Lifestyle",title:"Cuidar do planeta começa por cuidar do próprio corpo",desc:"Bem-estar e consciência ambiental.",cap:"Quem cuida de si aprende a cuidar de tudo."},
+  {date:"28/abr",month:"Abril",cat:"com",catL:"Comunidade",title:"Histórias reais: quem virou rotina aqui dentro",desc:"Depoimentos de alunos.",cap:"Cada pessoa aqui tem uma história. Qual é a sua?"},
+  {date:"11/mai",month:"Maio",cat:"data",catL:"Data Comemorativa",title:"Para as mães que se colocam em último lugar — não mais",desc:"Mães priorizando a própria saúde.",cap:"Mãe também merece cuidado. Hoje e sempre."},
+  {date:"16/mai",month:"Maio",cat:"edu",catL:"Conteúdo Educativo",title:"Alongamento e mobilidade: o que faz diferença no dia a dia",desc:"10 minutos de mobilidade diária.",cap:"Mobilidade é liberdade."},
+  {date:"23/mai",month:"Maio",cat:"data",catL:"Data Comemorativa",title:"Professores que fazem a diferença: presença que transforma",desc:"O diferencial humano da equipe.",cap:"Por trás de cada progresso, tem um profissional que acredita em você."},
+  {date:"30/mai",month:"Maio",cat:"life",catL:"Lifestyle",title:"O que comer antes e depois do treino (sem complicar)",desc:"Nutrição acessível para quem treina.",cap:"Comer bem não precisa ser difícil."},
+  {date:"05/jun",month:"Junho",cat:"data",catL:"Data Comemorativa",title:"Corpo em movimento, planeta em equilíbrio",desc:"Estilo de vida ativo e consciência ambiental.",cap:"Cuidar do planeta e do seu corpo andam juntos."},
+  {date:"13/jun",month:"Junho",cat:"edu",catL:"Conteúdo Educativo",title:"Por que o inverno é o melhor momento para criar hábitos",desc:"Benefícios do treino no frio.",cap:"Quem treina no frio, treina para sempre."},
+  {date:"21/jun",month:"Junho",cat:"motiv",catL:"Motivacional",title:"A noite mais longa do ano: um convite à renovação interior",desc:"Solstício e equilíbrio.",cap:"Até a noite mais longa passa. Cuide de você agora."},
+  {date:"26/jun",month:"Junho",cat:"data",catL:"Data Comemorativa",title:"Todo aluno é um atleta da própria vida",desc:"Atleta é quem se supera no seu ritmo.",cap:"Atleta não é só quem compete."},
+  {date:"04/jul",month:"Julho",cat:"edu",catL:"Conteúdo Educativo",title:"Seus ossos agradecem o treino de força — em qualquer idade",desc:"Prevenção da osteoporose.",cap:"Ossos fortes são resultado de anos de movimento."},
+  {date:"14/jul",month:"Julho",cat:"com",catL:"Comunidade",title:"Férias com movimento: a família inteira pode vir treinar",desc:"Férias escolares na academia.",cap:"Férias também são para cuidar."},
+  {date:"22/jul",month:"Julho",cat:"life",catL:"Lifestyle",title:"Dormir bem é treinar melhor: o papel do sono na saúde",desc:"Sono e reparação muscular.",cap:"O melhor suplemento é gratuito: uma boa noite de sono."},
+  {date:"30/jul",month:"Julho",cat:"motiv",catL:"Motivacional",title:"Metade do ano passou: como estão seus hábitos?",desc:"Check-in sem julgamentos.",cap:"Não é sobre onde você está — é sobre continuar."},
+  {date:"09/ago",month:"Agosto",cat:"data",catL:"Data Comemorativa",title:"Mover-se é humano: celebre o seu jeito de ser ativo",desc:"Esporte em todas as formas.",cap:"Não importa como você se move — o que importa é que você se move."},
+  {date:"18/ago",month:"Agosto",cat:"edu",catL:"Conteúdo Educativo",title:"Academia como espaço de saúde emocional",desc:"Agosto: mês de saúde mental no Brasil.",cap:"Às vezes, o treino mais importante é o que você faz pela cabeça."},
+  {date:"25/ago",month:"Agosto",cat:"life",catL:"Lifestyle",title:"Como encaixar o treino na semana sem estresse",desc:"Planejamento para agenda cheia.",cap:"Com o planejamento certo, o treino vira o melhor momento do dia."},
+  {date:"30/ago",month:"Agosto",cat:"data",catL:"Data Comemorativa",title:"Nutrição e treino: aliados inseparáveis do bem-estar",desc:"Nutrição como pilar da saúde.",cap:"O treino transforma, a nutrição sustenta."},
+  {date:"10/set",month:"Setembro",cat:"data",catL:"Data Comemorativa",title:"Movimento como cuidado: você não está sozinho(a)",desc:"Setembro Amarelo e comunidade.",cap:"Se você está aqui, já fez algo importante hoje."},
+  {date:"19/set",month:"Setembro",cat:"edu",catL:"Conteúdo Educativo",title:"Prepare seu corpo para a primavera com leveza",desc:"Retomada gradual pós-inverno.",cap:"A natureza floresce — seu corpo também pode."},
+  {date:"22/set",month:"Setembro",cat:"data",catL:"Data Comemorativa",title:"Primavera: a estação que pede movimento e renovação",desc:"Renovação de hábitos.",cap:"Floresceu por fora, floresce por dentro."},
+  {date:"29/set",month:"Setembro",cat:"com",catL:"Comunidade",title:"Desafio outubro: 30 dias de movimento consciente",desc:"Desafio comunitário.",cap:"30 dias, um hábito por vez. Você topa?"},
+  {date:"10/out",month:"Outubro",cat:"data",catL:"Data Comemorativa",title:"Saúde mental é saúde: o treino que cuida da mente",desc:"Dia Mundial da Saúde Mental.",cap:"Cuidar da mente é cuidar do corpo."},
+  {date:"20/out",month:"Outubro",cat:"data",catL:"Data Comemorativa",title:"Dois cuidados em um: ossos fortes e rastreio em dia",desc:"Outubro Rosa + Saúde Óssea.",cap:"Seu treino protege por dentro e por fora."},
+  {date:"24/out",month:"Outubro",cat:"edu",catL:"Conteúdo Educativo",title:"Trabalho remoto e corpo: como o treino corrige o que a cadeira destrói",desc:"Para quem passa horas no computador.",cap:"8 horas sentado(a), 1 hora em movimento."},
+  {date:"31/out",month:"Outubro",cat:"life",catL:"Lifestyle",title:"O único monstro que existe é o sedentarismo",desc:"Halloween descontraído.",cap:"Medo de treinar? Isso sim é assustador!"},
+  {date:"07/nov",month:"Novembro",cat:"data",catL:"Data Comemorativa",title:"Homens também precisam cuidar de si — sem tabu",desc:"Novembro Azul.",cap:"Cuidar de si não é frescura — é força."},
+  {date:"15/nov",month:"Novembro",cat:"edu",catL:"Conteúdo Educativo",title:"Exercício e controle glicêmico: o que a ciência comprova",desc:"Diabetes e atividade física.",cap:"Treinar é uma das formas mais eficazes de cuidar da glicemia."},
+  {date:"22/nov",month:"Novembro",cat:"com",catL:"Comunidade",title:"Gratidão pelo corpo que nos carrega — com todas as imperfeições",desc:"Valorizar o que o corpo faz.",cap:"Obrigado, corpo. Por cada passo, cada treino."},
+  {date:"28/nov",month:"Novembro",cat:"motiv",catL:"Motivacional",title:"Dezembro chega: e agora, como estão seus hábitos?",desc:"Preparação gentil para o verão.",cap:"Verão é para viver com energia, não com culpa."},
+  {date:"08/dez",month:"Dezembro",cat:"edu",catL:"Conteúdo Educativo",title:"Como manter a rotina saudável nas festas de fim de ano",desc:"Equilíbrio entre comemorações e hábitos.",cap:"Celebrar faz bem. E manter seus hábitos também."},
+  {date:"17/dez",month:"Dezembro",cat:"com",catL:"Comunidade",title:"O que construímos juntos em 2025",desc:"Retrospectiva do ano.",cap:"2025 foi construído por vocês. Obrigado por cada treino."},
+  {date:"24/dez",month:"Dezembro",cat:"data",catL:"Data Comemorativa",title:"Natal: o melhor presente é a saúde que você cultivou",desc:"Natal e cuidado com a saúde.",cap:"O presente mais valioso foi cuidar da sua saúde. Feliz Natal."},
+  {date:"31/dez",month:"Dezembro",cat:"data",catL:"Data Comemorativa",title:"Que o próximo ano seja de movimento, saúde e comunidade",desc:"Encerramento com esperança.",cap:"Que 2026 seja vivido com saúde, presença e alegria."},
+];
+
+// Templates por categoria
+const TEMPLATES = {
+  motiv: { label: "Motivacional", canvaIds: ["DAHHHE6xC2w","DAHHHLlE0pg","DAHHHDuPMLg","DAHHHHbZyS8"] },
+  edu:   { label: "Educativo",    canvaIds: ["DAHHHCZTZjg","DAHHHPpFc-U","DAHHHOr92iI"] },
+  data:  { label: "Data Comemorativa", canvaIds: ["DAHHHL2Gztk","DAHHHAk6Y98","DAHHHDrgwDw","DAHHHOoCpI4"] },
+  life:  { label: "Lifestyle",    canvaIds: ["DAHHHDe0cjc","DAHHHCuMv2U","DAHHHMq4jYY","DAHHHMlnhoA"] },
+  com:   { label: "Comunidade",   canvaIds: ["DAHHHPicnm0","DAHHHGEaHe4","DAHHHLau7mU","DAHHHGJCp4c"] },
+};
+
+const months=[...new Set(POSTS.map(p=>p.month))];
+let curMonth=months[0],selPost=null,selAngle=0,brandColor='#D01E28';
+window._angles=[];
+
+// ── CONFIG ──
+const workerEl = document.getElementById('workerUrl');
+const dotEl    = document.getElementById('configDot');
+const stEl     = document.getElementById('configStatus');
+
+workerEl.addEventListener('input', () => {
+  const url = workerEl.value.trim();
+  if(url.startsWith('https://') && url.includes('.workers.dev')) {
+    dotEl.className='config-ok';
+    stEl.textContent='Worker conectado';
+    localStorage.setItem('ps_worker_url', url);
+  } else {
+    dotEl.className='config-err';
+    stEl.textContent='URL inválida — deve terminar em .workers.dev';
+  }
+});
+
+// Restaura URL salva
+const saved = localStorage.getItem('ps_worker_url');
+if(saved){ workerEl.value=saved; workerEl.dispatchEvent(new Event('input')); }
+
+function getWorkerUrl(){ return workerEl.value.trim(); }
+
+// ── BRAND ──
+function pc(el){document.querySelectorAll('.cs').forEach(s=>s.classList.remove('on'));el.classList.add('on');brandColor=el.dataset.c}
+function getTone(){const s=document.getElementById('brandTone');return s.options[s.selectedIndex].text}
+function getAud(){const s=document.getElementById('brandAud');return s.options[s.selectedIndex].text}
+function getName(){return document.getElementById('brandName').value||'Academia do SESI'}
+
+// ── MONTHS/POSTS ──
+function renderMonths(){
+  document.getElementById('mthList').innerHTML=months.map(m=>
+    `<button class="mb ${m===curMonth?'on':''}" onclick="selM('${m}')">${m}</button>`
+  ).join('');
+}
+function selM(m){curMonth=m;selPost=null;document.getElementById('btnR').disabled=true;renderMonths();renderPosts();showV(1)}
+function renderPosts(){
+  document.getElementById('mtitle').textContent=`${curMonth} — selecione uma postagem`;
+  document.getElementById('pgrid').innerHTML=POSTS.filter(p=>p.month===curMonth).map(p=>{
+    const i=POSTS.indexOf(p);
+    return `<div class="pcard ${selPost&&selPost.title===p.title?'on':''}" onclick="selP(${i})">
+      <div class="ph"><span class="bdg b-${p.cat}">${p.catL}</span><span class="pdate">${p.date}</span></div>
+      <div class="ptitle">${p.title}</div>
+      <div class="pdesc">${p.desc}</div>
+    </div>`;
+  }).join('');
+}
+function selP(i){selPost=POSTS[i];renderPosts();document.getElementById('btnR').disabled=false}
+
+// ── VIEWS ──
+function showV(n){
+  ['v1','v2','v3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',i+1===n));
+  ['p1','p2','p3'].forEach((id,i)=>{
+    const e=document.getElementById(id);
+    e.className='pill'+(i+1===n?' on':i+1<n?' done':'');
+  });
+  document.getElementById('tba').innerHTML=
+    n===2?`<button onclick="showV(1)">← Voltar</button>`:
+    n===3?`<button onclick="showV(2)">← Voltar</button>`:'';
+}
+function mkBan(id){
+  const p=selPost;
+  document.getElementById(id).innerHTML=`
+    <div class="bcp" style="background:${brandColor}"></div>
+    <div><div class="btitle">${p.title}</div>
+    <div class="bmeta"><span class="bdg b-${p.cat}">${p.catL}</span>${p.date} · ${p.month}</div></div>`;
+}
+
+// ── API CALL via Worker ──
+async function callClaude(msg){
+  const url = getWorkerUrl();
+  if(!url) throw new Error('Configure a URL do Worker na barra superior');
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1200,
+      messages:[{role:'user',content:msg}]
+    })
+  });
+  if(!res.ok){
+    const t=await res.text();
+    throw new Error(`Worker retornou ${res.status}: ${t.slice(0,200)}`);
+  }
+  const d=await res.json();
+  if(d.error) throw new Error(d.error);
+  return d.content.map(c=>c.text||'').join('');
+}
+
+function parseJSON(raw){
+  const clean=raw.replace(/```json|```/g,'').trim();
+  const s=clean.indexOf('{'),e=clean.lastIndexOf('}');
+  if(s<0||e<0) throw new Error('JSON não encontrado na resposta');
+  return JSON.parse(clean.slice(s,e+1));
+}
+
+// ── STEP 2: TRENDS ──
+async function goR(){
+  showV(2);mkBan('ban2');
+  document.getElementById('rArea').innerHTML=`<div class="ldg"><div class="spin"></div>Pesquisando trends e dores do nicho...</div>`;
+  const p=selPost;
+  const msg=`Especialista em marketing para academias no Brasil (bem-estar, não alta performance). Analise a postagem e retorne SOMENTE JSON válido, sem texto extra, sem markdown.
+Postagem: "${p.title}" | Categoria: ${p.catL} | "${p.desc}" | Tom: ${getTone()} | Público: ${getAud()} | Academia: ${getName()}
+JSON exato: {"type":"trends","trends":[{"label":"string","heat":"alta","context":"string"},{"label":"string","heat":"estavel","context":"string"},{"label":"string","heat":"emergente","context":"string"},{"label":"string","heat":"alta","context":"string"}],"pains":["string","string","string"],"angles":["string","string","string"]}`;
+  try{
+    const d=parseJSON(await callClaude(msg));
+    window._angles=d.angles||[];
+    renderR(d);
+  }catch(e){
+    document.getElementById('rArea').innerHTML=`<div class="err">Erro: ${e.message}</div><div class="arow"><button onclick="goR()">Tentar novamente</button></div>`;
+  }
+}
+
+function renderR(d){
+  const hm={alta:'h-alta',estavel:'h-estavel',emergente:'h-emergente'};
+  document.getElementById('rArea').innerHTML=`
+    <div class="rgrid">
+      <div class="rcard">
+        <div class="rc-lbl"><span class="sdot sdot-g"></span>Trends em alta <span class="tai">IA</span></div>
+        ${d.trends.map(t=>`<div class="trow"><div><div style="font-size:12px;color:var(--texto)">${t.label}</div><div class="tctx">${t.context||''}</div></div><span class="htag ${hm[t.heat]||'h-estavel'}">${t.heat}</span></div>`).join('')}
+      </div>
+      <div class="rcard">
+        <div class="rc-lbl"><span class="sdot sdot-a"></span>Dores do público <span class="tai">IA</span></div>
+        ${d.pains.map((pain,i)=>`<div class="prow"><span class="pnum">0${i+1}</span><span>${pain}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="angles">
+      <div class="rc-lbl" style="margin-bottom:12px"><span class="sdot sdot-b"></span>Ângulos editoriais <span class="tai">IA</span></div>
+      ${d.angles.map((a,i)=>`<div class="ao ${i===0?'on':''}" onclick="selA(${i})"><div class="ar"></div><div><div class="anum">Ângulo ${i+1}</div><div class="atxt">${a}</div></div></div>`).join('')}
+    </div>
+    <div class="arow"><button class="btn-p" onclick="goG()">Gerar conteúdo →</button></div>`;
+  selAngle=0;
+}
+function selA(i){selAngle=i;document.querySelectorAll('.ao').forEach((e,j)=>e.classList.toggle('on',j===i))}
+
+// ── STEP 3: GENERATE ──
+async function goG(){
+  showV(3);mkBan('ban3');
+  document.getElementById('gArea').innerHTML=`<div class="ldg" style="grid-column:1/-1"><div class="spin"></div>Gerando legenda, hashtags e diretrizes visuais...</div>`;
+  const p=selPost;
+  const angle=window._angles[selAngle]||'';
+  const tmpl=TEMPLATES[p.cat]||TEMPLATES.motiv;
+
+  const msg=`Especialista em conteúdo para redes sociais de academias no Brasil. Retorne SOMENTE JSON válido, sem texto extra, sem markdown.
+Postagem: "${p.title}" | ${p.catL} | "${p.desc}" | Legenda base: "${p.cap}"
+Ângulo: "${angle}" | Academia: ${getName()} | Tom: ${getTone()} | Público: ${getAud()} | Cor: ${brandColor}
+Formato: imagem única 1:1 (1080x1080px) feed Instagram/app — identidade visual da Academia do SESI: preto #1A1A1A, vermelho #D01E28, tipografia bold condensada itálica, grafismos de setas anguladas
+
+JSON exato: {"caption":"legenda completa em português 3 parágrafos tom ${getTone()} sem pressão estética CTA suave","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5","#tag6","#tag7","#tag8"],"visualDirective":"instrução curta em português sobre qual texto principal colocar no template do Canva e qual elemento visual destacar — máximo 2 frases","categoria":"${p.catL}"}`;
+  try{
+    const g=parseJSON(await callClaude(msg));
+    renderG(g,tmpl,p);
+  }catch(e){
+    document.getElementById('gArea').innerHTML=`<div class="err" style="grid-column:1/-1">Erro: ${e.message}</div><div class="arow" style="grid-column:1/-1"><button onclick="goG()">Tentar novamente</button></div>`;
+  }
+}
+
+function renderG(g,tmpl,p){
+  const links=tmpl.canvaIds.map((id,i)=>
+    `<a href="https://www.canva.com/d/${id}" target="_blank" style="display:inline-block;padding:5px 10px;background:rgba(125,42,232,.2);border:1px solid rgba(125,42,232,.4);border-radius:var(--rs);color:#C084FC;font-size:11px;text-decoration:none;margin:2px">Template ${i+1}</a>`
+  ).join('');
+
+  document.getElementById('gArea').innerHTML=`
+    <div class="gc full">
+      <div class="gc-lbl">Diretriz visual para o Canva <span class="tai">IA</span></div>
+      <div style="background:var(--preto);border-radius:var(--rs);padding:12px;border:1px solid var(--brd);font-size:13px;color:var(--texto);line-height:1.6;margin-bottom:10px">${g.visualDirective||'Adapte o template com o texto da postagem e a cor da marca.'}</div>
+      <div class="gc-lbl" style="margin-bottom:8px">Templates disponíveis — ${tmpl.label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">${links}</div>
+      <div style="font-size:10px;color:var(--texto3);margin-top:6px">Abra o template, substitua o texto e exporte em 1080×1080px</div>
+    </div>
+    <div class="gc">
+      <div class="gc-lbl">Legenda <span class="tai">IA</span> <button class="cbtn" onclick="cpEl('capTxt',this)">Copiar</button></div>
+      <div class="cap-txt" id="capTxt">${g.caption.replace(/\n/g,'<br><br>')}</div>
+    </div>
+    <div class="gc">
+      <div class="gc-lbl">Hashtags</div>
+      <div style="margin-bottom:10px">${g.hashtags.map(h=>`<span class="htchip">${h}</span>`).join('')}</div>
+      <div class="divl"></div>
+      <div style="font-size:10px;color:var(--texto3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600">Detalhes</div>
+      <div style="font-size:11px;color:var(--texto2);line-height:1.9">
+        <strong style="color:var(--texto)">Imagem única · Feed · 1:1</strong><br>
+        Resolução: <strong style="color:var(--texto)">1080×1080 px</strong><br>
+        Categoria: <strong style="color:var(--texto)">${p.catL}</strong><br>
+        Data: <strong style="color:var(--texto)">${p.date} · ${p.month}</strong>
+      </div>
+      <div class="divl"></div>
+      <button onclick="expTXT(${JSON.stringify(g).replace(/'/g,"\\'")})" style="width:100%;margin-bottom:6px">↓ Baixar .txt</button>
+    </div>`;
+}
+
+function cpEl(id,btn){
+  navigator.clipboard.writeText(document.getElementById(id).innerText)
+    .then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent='Copiar',1800)});
+}
+
+function expTXT(g){
+  if(!selPost)return;
+  const p=selPost;
+  const lines=[
+    `POSTSTUDIO — ${getName().toUpperCase()}`,'='.repeat(50),'',
+    `DATA: ${p.date} · ${p.month}`,`CATEGORIA: ${p.catL}`,`TÍTULO: ${p.title}`,
+    `FORMATO: Imagem única · Feed · 1080×1080px`,'',
+    '─'.repeat(50),'DIRETRIZ VISUAL','─'.repeat(50),g.visualDirective||'',
+    '','─'.repeat(50),'LEGENDA','─'.repeat(50),g.caption,'',
+    '─'.repeat(50),'HASHTAGS','─'.repeat(50),g.hashtags.join(' '),'',
+    '─'.repeat(50),`Gerado por PostStudio — ${new Date().toLocaleDateString('pt-BR')}`,
+  ].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([lines],{type:'text/plain;charset=utf-8'}));
+  a.download=`${p.date.replace('/','')}-${p.month.toLowerCase()}.txt`;
+  a.click();
+  showToast('Arquivo baixado!');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+renderMonths();renderPosts();showV(1);
+</script>
+</body>
+</html>
